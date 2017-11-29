@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "io.lambdaprotocol.rpc";
+option java_outer_classname = "RPCProto";
+option objc_class_prefix = "RPC";
+
+package rpc;
+
+// Relay services route messages between senders and recipients.
+service Relay {
+
+    // Send a request to the relay. Returns a response.
+    rpc Send (Request) returns (Response);
+
+    // Respond to a request. Returns nothing.
+    rpc Respond (Response) returns (Nothing);
+
+    // Get notifications from the relay. Returns a stream of requests.
+    rpc Notifications (Signature) returns (stream Request);
+}
+
+// Request messages are payloads that need to be routed to a recipient in
+// exchange for a reward.
+message UnsignedRequest {
+    string to = 1;
+    string from = 2;
+    string payload = 3;
+    int64 value = 4;
+    int64 nonce = 5;
+}
+
+message Request {
+    UnsignedRequest request = 1;
+    Signature signature = 2;
+}
+
+// Response messages are sent by recipients in response to requests that they
+// have received.
+message UnsignedResponse {
+    Request request = 1;
+    string payload = 2;
+}
+
+message Response {
+    UnsignedResponse response = 1;
+    Signature signature = 2;
+}
+
+// Signatures contain a signed message hash and the public address of the
+// signatory.
+message Signature {
+    string hash = 1;
+    string signatory = 2;
+}
+
+// Nothing messages are empty.
+message Nothing {}
